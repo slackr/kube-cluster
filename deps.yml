@@ -1,0 +1,88 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: disable swap for k8s (1/2)
+      shell: |
+        swapoff -a
+      #  when: kubernetes_installed is changed
+    - name: disable swap for k8s (2/2)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+      #  when: kubernetes_installed is changed
+    - name: install remote apt deps
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg2
+          - software-properties-common
+        state: present
+
+    - name: add docker apt key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: add docker apt repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/debian buster stable
+        state: present
+        filename: "docker"
+
+    - name: install docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: true
+
+    - name: add k8s apt key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: add k8s apt repository
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: "kubernetes"
+
+    - name: install kubelet
+      apt:
+        name: kubelet
+        state: present
+        update_cache: true
+
+    - name: install kubeadm
+      apt:
+        name: kubeadm
+        state: present
+
+- hosts: master
+  become: yes
+  tasks:
+    - name: configure docker daemon.json
+      shell: |
+        cat > /etc/docker/daemon.json <<EOF
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m"
+            },
+            "storage-driver": "overlay2"
+          }
+        EOF
+    - name: create systemd docker folder
+      file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+    - name: restart docker service
+      shell: |
+        systemctl daemon-reload && systemctl restart docker
+    - name: install kubectl
+      apt:
+        name: kubectl
+        state: present
+        force: yes

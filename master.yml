@@ -2,7 +2,7 @@
   become: yes
   tasks:
     - name: initialize the cluster
-      shell: kubeadm init --pod-network-cidr=10.244.0.0/16 >> cluster_init.log
+      shell: kubeadm init --pod-network-cidr=172.16.0.0/16 >> cluster_init.log
       args:
         chdir: $HOME
         creates: cluster_init.log

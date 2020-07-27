@@ -1,1 +1,3 @@
 hosts
+pdsh_hosts
+metallb-configmap.yml

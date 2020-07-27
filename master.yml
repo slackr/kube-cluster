@@ -2,8 +2,8 @@
   become: yes
   tasks:
     - name: initialize the cluster
-      shell: kubeadm init --pod-network-cidr=10.244.0.0/16 >> cluster_init.log
-      # shell: kubeadm init --pod-network-cidr=192.168.0.0/16 >> cluster_init.log
+      # shell: kubeadm init --pod-network-cidr=10.244.0.0/16 >> cluster_init.log
+      shell: kubeadm init --pod-network-cidr=192.168.0.0/16 >> cluster_init.log
       args:
         chdir: $HOME
         creates: cluster_init.log
@@ -23,10 +23,17 @@
         remote_src: yes
         owner: k8s
 
+    - name: copy kube-flannel-192.yml to master
+      copy:
+        src: ./kube-flannel-192.yml
+        dest: /home/k8s/kube-flannel.yml
+        force: yes
+
     - name: install pod network
       become: yes
       become_user: k8s
-      shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
+      shell: kubectl apply -f /home/k8s/kube-flannel.yml >> pod_network_setup.log
+      # shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml >> pod_network_setup.log
       # shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml >> pod_network_setup.log
       args:
         chdir: $HOME

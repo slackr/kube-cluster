@@ -58,6 +58,11 @@ pdsh -w ^pdsh_hosts -R ssh "rm -rf /root/*.log; rm -rf /home/k8s/*.log"
 pdsh -w ^pdsh_hosts -R ssh "rm -rf /etc/cni/net.d"
 ```
 
+# update keyserver with k8s repo keys if needed
+```bash
+pdsh -w ^pdsh_hosts -R ssh "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys [key from apt update error]"
+```
+
 # kubectl alias with completion
 
 ```bash

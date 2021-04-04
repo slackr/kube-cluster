@@ -51,11 +51,11 @@ kubectl get nodes
 
 # reset kube cluster
 ```bash
+pdsh -w ^pdsh_hosts -R ssh "kubeadm reset -f"
 pdsh -w ^pdsh_hosts -R ssh "rm -rf /etc/cni/net.d/10-flannel.conflist; ip link delete flannel.1; ip link delete cni0"
 pdsh -w ^pdsh_hosts -R ssh "rm -rf /home/k8s/.kube"
 pdsh -w ^pdsh_hosts -R ssh "rm -rf /root/*.log; rm -rf /home/k8s/*.log"
 pdsh -w ^pdsh_hosts -R ssh "rm -rf /etc/cni/net.d"
-pdsh -w ^pdsh_hosts -R ssh "kubeadm reset -f"
 ```
 
 # kubectl alias with completion

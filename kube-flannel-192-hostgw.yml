@@ -127,7 +127,7 @@ data:
     {
       "Network": "192.168.0.0/16",
       "Backend": {
-        "Type": "vxlan"
+        "Type": "host-gw"
       }
     }
 ---
